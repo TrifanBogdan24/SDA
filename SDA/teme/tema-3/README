@@ -1,0 +1,252 @@
+## TRIFAN BOGDAN-CRISTIAN, 312 CD, semigrupa I
+## TEMA 3 - S.D.A.
+
+# STRUCTURI DE DATE
+
+# LISTA DE ADIACENTA
+Pentru a retine muchiile, am folosit o lista de adiacenta :
+primul camp (elem) este reprezentat de o pereche (nod, cost),
+care contine nodul destinatie si costul catre acesta
+iar al doilea camp (urm) pointeaza catre urmatorul nod din lista.
+
+# GRAF
+Struct-ul de graf contine numarul de noduri (N), numarul de componente 
+conexe (nr_comps), un pointer de intregi (componenta - privit drept vector) 
+care ne spune carei componenta conexa apartine fiecare nod in part, iar 
+muchiile grafului sunt reprezentate printr-un vector de liste de adiacenta 
+Lista *adiacenta = fiecare lista retine de fapt nodul final si costul catre el
+
+Astfel, prima lista de adiacenta ne spune ca toate muchiile la care se refera
+pleaca din primul nod , pentru a doua lista pleaca din a-l doilea nod s.a.m.d.
+
+Spre exemplu, daca adiacenta[1] contine undeva perechea (3, 4), atunci
+avem muchie de cost 4 de la nodul 1 la 3 si vice versa.
+(elementele fiind indexate de la 0! La fel si indicele nodurilor,
+tot de la 0 sunt indexate!)
+
+In alta ordine de idei, daca avem :
+    N = 4
+    adiacenta[0] = (1, 1) -> (2, 101) -> (3, 10)
+    adiacenta[1] = (0, 1)
+    adiacenta[2] = (0, 101) -> (3, 8)
+    adiacenta[3] = (0, 10) -> (2, 8)
+
+    Pentru nodul 0 vom avea:
+    muchie de la 0 la 1 de cost 1
+    muchie de la 0 la 2 de cost 101
+    muchie de la 0 la 3 de cost 10
+
+    Pentru nodul 1 vom avea:
+    muchie de la 1 la 0 de cost 1
+
+    Pentru nodul 2 vom avea:
+    muchie de la nodul 2 la nodul 0 de cost 101
+    muchie de la nodul 2 la nodul 3 de cost 8
+
+    Pentru nodul 3 vom avea:
+    muchie de la nodul 3 la nodul 0 de cost 10
+    muchie de la nodul 3 la nodul 2 de cost 8
+
+    Graful fiind neorientat, daca exista muchia (i, j), va exista si muchia (j, i) 
+
+# TASK 1
+
+Pentru a putea lucra cu grafuri si nu cu nume de locatii, intrucat este mai usor
+pentru mine ca programator sa implementez nodurile grafului ca fiind
+numere naturale si nu siruri de caractere.
+
+Drept pentru care, asemenea dictionarelor din python in care se poate face
+asocierea dintre un string si un numar (ambele fiind valori unice),
+imi aleg o matrice de char-uri in care fiecare linie reprezinta cate o denumire.
+
+Pe parcursul citirii din fisier, caut fiecare cuvant in matricea mentionata.
+Daca se afla, continui citirea, iar daca locatia nu apare in matrice
+si implicit nici in fisier pana la pozitia cursorului,
+o adaug ca fiind ultima linie din matrice.
+
+La finalul citirii, matricea va contine o matrice cu N linii indexate de la 
+0 la (N - 1), fiecare numar de linie fiind reprezentand indexul unui nod din graf,
+iar fiecare linie va contine numele locatiei asociat nodului.
+
+Pentru o demonstratie a ideii, cu referie la forma dictionarelor din python,
+pentru testul din exemplu vom obtine:
+    (nodul) 0 : 'Ferma'
+    (nodul) 1 : 'Brutaria'
+    (nodul) 2 : 'Catedrala'
+    (nodul) 3 : 'Pescaria'
+    (nodul) 4 : 'Piata'
+    (nodul) 5 : 'Primaria'
+    (nodul) 6 : 'Biblioteca'
+    (nodul) 7 : 'Fieraria
+    (nodul) 8 : 'Castelul'
+Bineinteles ca in acest limbaj de programare interpretat, cheia va fi 
+denumirea efectiva, iar valoarea indexului, iar cand o denumire (key)
+nu apare in dictionar, o adaugam cu valoarea ultimei chei, la care adaugam 1
+
+Revenind in C, un detaliu important referitor la citirea din fisier este
+forma liniilor : 
+
+    denumire_nod_unu denumire_nod_doi cost_muchie
+
+Bineinteles ca, pentru a separa in mod convenabil continutul liniilor din fisier,
+vom folosi (pentru fiecare linie) functia strtok de 3 ori, intrucat avem
+trei elemente (doua cuvinte si un numar) separate prin spatiu.
+Numarul il extragem initial ca fiind un sir de caracter, drept pentru care
+am construit o functie echivalenta cu 'atoi' care va returna un numar intreg.
+
+Mai apoi, fiind un graf neorientat, trebuie adaugata muchia in ambele directii
+intre nodul asociat primului cuvant si nodul asociat celui de al doilea,
+muchie avand costul egal cu numarul citit.
+La final, va exista atat drumul de la primul la al doilea de cost ....,
+cat si de la al doiela la primul, de acelasi cost.
+
+# TASK 1.1
+
+Prima parte a acestei cerinte reprezinta de fapt numar de componente conexe
+grafului, prin componenta conexa intelegand ca exista cel putin un drum de
+la orice nod I la orice nod J, cu I si J apartinand aceeasi componente.
+Un nod izolat este considerat ca formeaza o componenta conexa.
+
+Cum putem imparti graful in subgrafuri care sa fie componente conexe?
+# DFS
+# REPARTITIA PE COMPONENTE CONEXE
+
+Luam un vector in care elementul este 1 daca nodul de la indicele sau
+a fost atribuit unei componente conexe, si 0 daca inca nu apartine
+niciunei componente.
+
+Parcurgem toate nodurile de la 0 la (N -1).
+Daca nodul nu a fost inca vizitat (in vector apare 0), atunci trebuie
+sa parcurgem toate nodurile catre care exista cel putin un drum.
+
+Eu am ales sa folosesc parcurgerea in adancime (DFS) a subgrafului
+(totusi chiar nu conteaza tipul de parcurgere ales, intrucat scopul este 
+doar sa parcurgem, iar DFS este mai usor de implementat, intrucat apelurile
+recursive functioneaza pe post de stiva; la BFS insa trebuia sa imi iau o 
+coada, deci sa creez si sa aloc si dezaloc memorie pentru o noua structura,
+prea complicat...)
+
+Bun, odata ce facem DFS, vom actualiza starea daca nodul este vizitat sau nu
+si vom egala indicele componentei conexe din care face parte cu acela
+al nodului din care am pornit parcurgerea.
+
+Revenind la iteratia nodului, daca gasim un nou nod nevizitat, atunci
+el nu a fost atribuit,inca, unei componente, deci crestem numarul de componente conexe
+si repetam procesul (facem din nou DFS etc). Altfel, nu facem nimic cu nodurile
+deja vizitate. Ce sa facem? Parcurgem din nou si obtininem aceeasi componenta conexa? Redundant.
+
+# TASK 1.2
+
+Dupa ce am executat tot algoritmul in care am repartizat nodurile in functie de componentele conexe,
+ne trebuie muchiile care formeaza drumul minim pe fiecare astfel de subgraf in parte.
+
+Algoritmul care ne ofera costul muchiilor care intra in drumul minim ii apartine lui Prim.
+Deci, o sa facem Prim pe fiecare componenta conexa : adunam muchiile care intra
+in drumul primei componente si stocam acest numar in primul element dintr-un pointer de intregi,
+adunam muchiile care intra in drumul celei de a doua componente si retinem suma in al doilea
+element al pointer-ului (privit ca vector) s.a.m.d.
+
+La final, pointer-ul va contine suma costurilor muchiilor care intra in drumul minim pentru
+fiecare componenta conexa in parte. Mai trebuie doar sa ordonam crescator vectorul si 
+sa afisam elementele lui pe cate o linie noua din fisier.   
+
+# PRIM
+
+Algoritmul lui Prim este o metoda de tip greedy (adica solutia curenta se bazeaza pe
+solutiile precedent cunstruite), prin care retinem muchiile care intra in drumul de cost minim
+al unui graf, dar mai bine zis, ai unui subgraf, care se intampla sa fie o componenta conexa.
+
+Ne luam doi vectori :
+- unul contine valorea 1 daca nodul de la un indice sau a fost vizitat, iar altfel, 0
+- un vector care retine costul muchiei adiacente nodului de la un indice,
+  muchie care apartine drumului minim. vectorul contine initial valori foarte mari
+
+La fiecare iteratie, luam nodul nevizitat care se intampla sa fie in componenta conexa pentru
+care dorim sa calculam costul drumului minim, nod care respecta si conditia ca muchia adiacenta lui
+care a fost repartizata drumului pana la momentul respectiv sa aiba costul minim
+dintre toate muchiile din drumul momentan construit.
+
+Vizitam acest nod, setand cu 1 valoarea elementului din primul vector de la indicele egal cu nodul.
+
+Apoi, daca se poate, actualizam muchiile care intra in drumul minim :
+ne uitam la toti vecinii nevizipredecesor ai nodului, iar valoarea elementelor din al doilea vector
+cu indicele in aceste noduri trebuie sa fie, in parte, pe rand, mai mici decat costul muchiei dintre nod si vecin.
+
+Spre exemplu, daca am ajuns in nodul 3, care ii are pe 1, 2, si 5 drept vecini directi.
+Sa spunem in nodulului 2 am ajuns anterior, adica este vizitat.
+Deci doar pentru nodurile 1 si 5 facem verificarile:
+- daca cost_muchie_de_la_3_la_1 < second_vect[1], atunci second_vect = cost_muchie_de_la_3_la_1
+- daca cost_muchie_de_la_5_la_1 < second_vect[1], atunci second_vect = cost_muchie_de_la_5_la_1
+
+Din acest moment, o sa ne ducem ori in 3, ori in 5, ori in niciunul :
+- in 3 daca este singurul nevizitat
+- in 3 daca ambele sunt nevizitate, iar second_vect[3] < second_vect[5]
+- in 5 daca este singurul nevizitat
+- in 5 daca ambele sunt nevizitate, iar second_vect[5] < second_vect[3]
+- in niciun, daca ambele sunt vizitate, deci am finalizat Algoritmul
+
+Solutia costului drumului minim este dat de suma elementelor din second_vect,
+elemente care fac parte in componenta conexa pentru care vrem sa aflam drumul minim.
+
+
+
+
+# TASK 2
+
+
+In timpul citirii, numerotez nodurile grafului orientat astfel :
+'Insula'    -   nodul 0
+'Nod_i'     -   nodul (i - 1)
+'Corabie'   -   nodul (N - 1)
+
+Incepem cu verificarea existentei drumului de la nodul (N - 1) la nodul 0 (corabie -> insula).
+Daca nu exista, scriem in fisier 'Echipajul nu poate ajunge la insula',
+iar programul poate fi considerat ca si incheiat.
+
+Daca totusi exist, mai verifcam daca exista si drumul de la nodul 0 la nodul (N - 1) (insula -> corabie).
+Daca nu exista, scriem in fisier 'Echipajul nu poate transporta comoara inapoi la corabie',
+iar programul poate fi considerat ca si incheiat.
+
+Cum verificam totusi daca un drum exista? Prin DFS. O sa luam un pointer de intregi initializat
+cu 0, iar pe odata ce parcurgem in adancime graful (pe rand, din cele doua puncte)
+valoarea din vector va deveni 1, ceea ce inseamna ca nodul este vizitat.
+La final, daca valoarea vectorului in nodul final este 0, atunci nu exista drum de la
+nodul din care incepem DFS si nodul catre care dorim sa vedem ca exista drum.
+Drumul va exista doar daca, in urma parcurgerii, nodul final este vizitat,
+adica daca valoarea din pointer este 1.
+
+Daca programul inca ruleaza dupa acese etape (adica exista drum de la corabie la isnula si vice versa),
+trebuie sa calculam scorul, care se refara la raportul dintre costul unei muchiii si indicele nodului destinatie.
+
+Intr-un final, facem algoritmul lui Dijsktra pe graful nostru orientat, porind din nodul 0 (din insula).
+Fata de Prim, subprogramul difera prin faptul ca in loc sa retinem muchia (adiacenta fiecarui), care intra in drum,
+noi vom memora drumul de cost minim de la nodul sursa (insula in cazul nostru), catre toate celelalte.
+Totusi, acesta este algortimul standard al lui Dijsktra. Problema noastra insa ne adauga in ecuatie, pe langa
+costul muchiilor, si scorul acestora, care este depedent de cost si de indicele nodului destinatie. 
+Drept pentru care, daca pentru clasicul Dijsktra luam nodul nevizitat cu distanta minima,
+acum o sa luam nodul nevizitat cu scorul minim; iar daca noi la laborator relaxam celelalte noduri
+(vecini ai acestuia), pentru care se intampla ca distanta pana la ei sa fie mai mare decat
+suma dintre distanta pana la nodul ales si muchia dintre acesta si vecin. In cadrul problemei noastre,
+in loc sa facem comparatiile in functie de distante, vom face in functie de scorul muchiei ce are drept
+punct de sosire vecinul nodului ales. In momentul in care relaxam scorurile, vom relaxa si distanta
+de la nodul initial la vecinii nodului ales, asa cum se intampla si in clasicul Dijsktra.
+Tot in momentul relaxarii, updatam si valorile unui 'vector de predecesor' (v[i] = j -> nodul j este tatal lui i),
+pentru a face mai rapida scrierea primei linii cerute in fisier.
+
+Pe prima linie din fisier vom scrie drumul convenabil dintre insula si corabie.
+Astfel, noi trebui sa vedem prin ce noduri am trecut prin drum si in ce ordine.
+Folosim vecoturul de predecesor (daca stau sa ma gandesc mai bine, putema si ar fi fost mai usor
+de implementat un vector privit drept succesori : v[i] = j -> nodul i este tatal lui j , nodul j este succesorul lui i);
+Logica pentru vecoturul de succesor este inversa vectorului de predecesor, care necesita recursivitate pentra a afisa corect drumul,
+intrucat plecam din utlimul nod, iar pentr a-l afisa ultimul, trebuie printat dupa autopel;
+la vectorul de succesor, ar fi fost indeajuns un singur while).
+
+Pe scurt, in indicele i, vectorul de predecesor retine predecesorul nodului i in drum, iar vectorul de fii, succesorul.
+Pentru a afisa corect drumul de la nodul initial la nodul final, cu vectorul de predecesor plecam de la final, in sens invers,
+iar daca as fi facut cu succesor, plecam din nodul inital si ajungem din aproape in aproape la final, nu invers.
+
+Costul totatal al drumului se afla indicele nodului destinatie (corabia) din vectorul de distante.
+Acest trebuie afisat pe a doua linie.
+
+Din nodurile care formeaza acest drum, noi trebui sa extragem si sa afisam pe a treia linie adancimea minima,
+iar pe ultima si nu cea din urma, raportul dintre greutate si adancimea minima.
